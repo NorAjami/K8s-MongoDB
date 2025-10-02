@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: mongo-init-container
-        image: norajami/my-mongo-init:latest
+        image: larsappel/my-mongo-init:latest
         env:
         - name: MONGO_HOST
           value: mongodb-service
