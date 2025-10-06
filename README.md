@@ -1,49 +1,9 @@
-Perfekt! 😍 Då gör vi din **README.md** både **proffsig och snygg** – med färgade badges, emoji-ikoner och en modern GitHub-look (som företag och rekryterare älskar att se).
-Jag behåller samma tydliga struktur som innan, men nu ser den ut som ett “riktigt projekt” i din portfolio.
-
----
-
-### 🌟 **Uppdaterad README.md (med badges och design)**
 
 ```markdown
-<h1 align="center">🐳 Kubernetes MongoDB Demo</h1>
+# 🐳 Kubernetes MongoDB Demo
 
-<p align="center">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT">
-  <img src="https://img.shields.io/badge/Kubernetes-v1.30+-blue.svg" alt="Kubernetes">
-  <img src="https://img.shields.io/badge/Docker-Desktop-orange.svg" alt="Docker Desktop">
-  <img src="https://img.shields.io/badge/MongoDB-Atlas%20Ready-brightgreen.svg" alt="MongoDB">
-  <img src="https://img.shields.io/badge/ASP.NET-Core%20Razor%20Pages-68217A.svg" alt="ASP.NET Core">
-</p>
-
-<p align="center">
-  <b>Fullstack Kubernetes demo med MongoDB, Mongo Express och en ASP.NET ToDo-app</b><br>
-  <i>Byggd för att förstå hur flera containrar kan kommunicera i ett Kubernetes-kluster.</i>
-</p>
-
----
-
-## 📚 Innehållsförteckning
-- [Om projektet](#-om-projektet)
-- [Struktur](#-projektstruktur)
-- [Förutsättningar](#️-förutsättningar)
-- [Installation och körning](#-steg-för-steg)
-- [Rensa resurser](#-rensa-allt)
-- [Felsökning](#-tips--felsökning)
-- [Framtida förbättringar](#-framtida-förbättringar)
-- [Licens](#-licens)
-
----
-
-## 💡 Om projektet
-
-Detta projekt visar hur man:
-- Sätter upp **MongoDB** med **persistent storage (PVC)**  
-- Deployar **Mongo Express** som UI för databasen  
-- Skapar ett **init-jobb** som fyller MongoDB med testdata  
-- Deployar en **ASP.NET Core Razor Pages ToDo-app** som läser från databasen  
-
-Kort sagt: du lär dig grunderna i **Kubernetes-kommunikation, ConfigMaps, Jobs och NodePort-tjänster**. 🚀
+Detta projekt visar hur man sätter upp en **MongoDB-databas**, **Mongo Express UI**, och en **ASP.NET Core ToDo-webapp** i **Kubernetes** (t.ex. Docker Desktop Kubernetes).  
+Projektet använder **StatefulSet**, **ConfigMap**, **Job** och **Services (NodePort)** för att visa hur komponenter i ett system kan samverka.
 
 ---
 
@@ -53,18 +13,18 @@ Kort sagt: du lär dig grunderna i **Kubernetes-kommunikation, ConfigMaps, Jobs 
 
 k8s-mongo-demo/
 ├─ kubernetes/
-│  ├─ mongodb-statefulset.yaml
-│  ├─ mongodb-service.yaml
-│  ├─ mongo-express-deployment.yaml
-│  ├─ mongo-express-service.yaml
-│  ├─ mongo-init-job.yaml
-│  ├─ todo-configmap.yaml
-│  ├─ todo-deployment.yaml
-│  └─ todo-service.yaml
+│  ├─ mongodb-statefulset.yaml         # MongoDB med persistent storage (StatefulSet)
+│  ├─ mongodb-service.yaml             # Service för intern åtkomst (ClusterIP)
+│  ├─ mongo-express-deployment.yaml    # Mongo Express web UI
+│  ├─ mongo-express-service.yaml       # NodePort-service för Mongo Express
+│  ├─ mongo-init-job.yaml              # Jobb som initierar databasen med data
+│  ├─ todo-configmap.yaml              # ConfigMap med miljövariabler
+│  ├─ todo-deployment.yaml             # ASP.NET Core ToDo-app
+│  └─ todo-service.yaml                # NodePort-service för ToDo-webappen
 │
 ├─ init-image/
-│  ├─ Dockerfile
-│  └─ init-mongo.sh
+│  ├─ Dockerfile                       # Dockerfile för init-jobbets image
+│  └─ init-mongo.sh                    # Script som fyller databasen
 │
 ├─ .gitignore
 └─ LICENSE
@@ -75,30 +35,30 @@ k8s-mongo-demo/
 
 ## ⚙️ Förutsättningar
 
-Du behöver ha följande installerat:
+För att kunna köra detta demo behöver du:
 
-| Program | Länk |
-|----------|------|
-| 🐋 Docker Desktop | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop) |
-| ☸️ Kubernetes (aktiverat i Docker Desktop) | Via Docker Desktop Settings → Kubernetes |
-| 🔧 kubectl | [Installera här](https://kubernetes.io/docs/tasks/tools/) |
-| 🐙 Git + GitHub | För att versionera projektet |
-| 🧱 Docker Hub (valfritt) | Om du vill pusha egna images |
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- Kubernetes aktiverat i Docker Desktop (Settings → Kubernetes → Enable Kubernetes)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) installerat
+- (valfritt) Ett Docker Hub-konto för att pusha egna images
 
 ---
 
 ## 🚀 Steg-för-steg
 
 ### 1️⃣ Starta Kubernetes
+
+Se till att Kubernetes körs i Docker Desktop.
+
 ```bash
 kubectl get nodes
 ````
 
-Om allt funkar ska du se något liknande:
+Du ska se något som liknar:
 
 ```
 NAME             STATUS   ROLES           AGE   VERSION
-docker-desktop   Ready    control-plane   5m    v1.30.x
+docker-desktop   Ready    control-plane   10m   v1.30.x
 ```
 
 ---
@@ -110,7 +70,7 @@ kubectl apply -f kubernetes/mongodb-statefulset.yaml
 kubectl apply -f kubernetes/mongodb-service.yaml
 ```
 
-Kontrollera:
+Verifiera:
 
 ```bash
 kubectl get pods
@@ -126,25 +86,30 @@ kubectl apply -f kubernetes/mongo-express-deployment.yaml
 kubectl apply -f kubernetes/mongo-express-service.yaml
 ```
 
-Hitta porten:
+Kolla vilken port Mongo Express körs på:
 
 ```bash
 kubectl get svc mongo-express-service
 ```
 
-Öppna i webbläsaren (exempel):
-👉 [http://localhost:32000](http://localhost:32000)
+Exempelutskrift:
+
+```
+mongo-express-service   NodePort   10.1.1.55   <none>   8081:32000/TCP
+```
+
+👉 Öppna webbläsaren: [http://localhost:32000](http://localhost:32000)
 
 ---
 
-### 4️⃣ Initiera databasen (Job)
+### 4️⃣ Initiera databasen
 
 ```bash
 kubectl apply -f kubernetes/mongo-init-job.yaml
 kubectl logs --selector job-name=mongo-init-job
 ```
 
-✅ Du ska se loggar som visar att “ToDoItems” har skapats.
+Du ska se att två “ToDoItems” läggs till i databasen.
 
 ---
 
@@ -156,20 +121,25 @@ kubectl apply -f kubernetes/todo-deployment.yaml
 kubectl apply -f kubernetes/todo-service.yaml
 ```
 
-Kolla port:
+Kolla vilken NodePort appen har fått:
 
 ```bash
 kubectl get svc todo-service
 ```
 
-Öppna i webbläsaren:
-👉 [http://localhost:31000](http://localhost:31000)
+Exempel:
+
+```
+todo-service   NodePort   10.1.1.99   <none>   80:31000/TCP
+```
+
+👉 Öppna webbläsaren: [http://localhost:31000](http://localhost:31000)
 
 ---
 
 ## 🧹 Rensa allt
 
-När du är klar:
+När du vill ta bort alla resurser:
 
 ```bash
 kubectl delete -f kubernetes/
@@ -177,29 +147,29 @@ kubectl delete -f kubernetes/
 
 ---
 
-## 🔍 Tips & Felsökning
-
-| Problem                 | Orsak                      | Lösning                                    |
-| ----------------------- | -------------------------- | ------------------------------------------ |
-| `ContainerCreating`     | Kubernetes väntar på image | `kubectl describe pod <namn>` för mer info |
-| `CrashLoopBackOff`      | Init-scriptet misslyckades | Kontrollera `kubectl logs` för jobben      |
-| Mongo Express laddas ej | NodePort ej öppen          | `kubectl get svc` och öppna rätt port      |
-| Vill börja om helt      | -                          | `kubectl delete all --all` (försiktigt!)   |
-
----
-
-## 🧭 Framtida förbättringar
-
-* [ ] Lägga till Secrets för användarnamn/lösenord
-* [ ] Använda Ingress istället för NodePort
-* [ ] CI/CD med GitHub Actions
-* [ ] Helm Chart-version av detta projekt
-
----
-
 ## 📄 Licens
 
-MIT License – se [LICENSE](LICENSE)
+MIT License – se [LICENSE](LICENSE).
 
 ---
+
+## 💡 Tips & felsökning
+
+| Problem                        | Lösning                                                                                      |
+| ------------------------------ | -------------------------------------------------------------------------------------------- |
+| Pod står i `ContainerCreating` | Kör `kubectl describe pod <podnamn>` för att se eventuella fel (t.ex. image-pull eller PVC). |
+| Mongo Express öppnas inte      | Kontrollera att rätt NodePort används och att podden körs (`kubectl get pods`).              |
+| Init-jobb fastnar              | Kolla loggar: `kubectl logs --selector job-name=mongo-init-job`.                             |
+| Vill starta om helt            | `kubectl delete all --all` rensar hela namnområdet (var försiktig).                          |
+
+---
+
+## ✨ Framtida förbättringar
+
+* Lägg till Secrets för MongoDB credentials
+* Lägg till Ingress Controller för extern access
+* Automatisera med GitHub Actions (CI/CD)
+
+
+```
 
