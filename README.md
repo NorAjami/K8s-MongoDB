@@ -7,32 +7,6 @@ Projektet använder **StatefulSet**, **ConfigMap**, **Job** och **Services (Node
 
 ---
 
-## 📂 Projektstruktur
-
-```
-
-k8s-mongo-demo/
-├─ kubernetes/
-│  ├─ mongodb-statefulset.yaml         # MongoDB med persistent storage (StatefulSet)
-│  ├─ mongodb-service.yaml             # Service för intern åtkomst (ClusterIP)
-│  ├─ mongo-express-deployment.yaml    # Mongo Express web UI
-│  ├─ mongo-express-service.yaml       # NodePort-service för Mongo Express
-│  ├─ mongo-init-job.yaml              # Jobb som initierar databasen med data
-│  ├─ todo-configmap.yaml              # ConfigMap med miljövariabler
-│  ├─ todo-deployment.yaml             # ASP.NET Core ToDo-app
-│  └─ todo-service.yaml                # NodePort-service för ToDo-webappen
-│
-├─ init-image/
-│  ├─ Dockerfile                       # Dockerfile för init-jobbets image
-│  └─ init-mongo.sh                    # Script som fyller databasen
-│
-├─ .gitignore
-└─ LICENSE
-
-````
-
----
-
 ## ⚙️ Förutsättningar
 
 För att kunna köra detta demo behöver du:
